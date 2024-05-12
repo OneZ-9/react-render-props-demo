@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { faker } from "@faker-js/faker";
-import './App.css'
+import "./App.css";
+import List from "./List";
+import ProductItem from "./ProductItem";
+import CompanyItem from "./CompanyItem";
+import withToggles from "./HOC";
+import ProductList from "./ProductList";
 
 const products = Array.from({ length: 20 }, () => {
   return {
@@ -17,88 +22,44 @@ const companies = Array.from({ length: 15 }, () => {
   };
 });
 
-function ProductItem({ product }) {
-  return (
-    <li className="product">
-      <p className="product-name">{product.productName}</p>
-      <p className="product-price">${product.price}</p>
-      <p className="product-description">{product.description}</p>
-    </li>
-  );
-}
-
-function CompanyItem({ company, defaultVisibility }) {
-  const [isVisible, setIsVisisble] = useState(defaultVisibility);
-
-  return (
-    <li
-      className="company"
-      onMouseEnter={() => setIsVisisble(true)}
-      onMouseLeave={() => setIsVisisble(false)}
-    >
-      <p className="company-name">{company.companyName}</p>
-      {isVisible && (
-        <p className="company-phrase">
-          <strong>About:</strong> {company.phrase}
-        </p>
-      )}
-    </li>
-  );
-}
-
-function List({ title, items }) {
-  const [isOpen, setIsOpen] = useState(true);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const displayItems = isCollapsed ? items.slice(0, 3) : items;
-
-  function toggleOpen() {
-    setIsOpen((isOpen) => !isOpen);
-    setIsCollapsed(false);
-  }
-
-  return (
-    <div className="list-container">
-      <div className="heading">
-        <h2>{title}</h2>
-        <button onClick={toggleOpen}>
-          {isOpen ? <span>&or;</span> : <span>&and;</span>}
-        </button>
-      </div>
-      {isOpen && (
-        <ul className="list">
-          {displayItems.map((product) => (
-            <ProductItem key={product.productName} product={product} />
-          ))}
-        </ul>
-      )}
-
-      <button onClick={() => setIsCollapsed((isCollapsed) => !isCollapsed)}>
-        {isCollapsed ? `Show all ${items.length}` : "Show less"}
-      </button>
-    </div>
-  );
-}
+// HOC Pattern
+// Assigning returned component to new variable
+const ProductLictWithToggles = withToggles(ProductList);
 
 export default function App() {
   return (
     <div>
       <h1>Render Props Demo</h1>
 
+      {/* <div className="col-2"> */}
+      {/* ** Render Props Pattern ** */}
+      {/* Using the render prop to invert how List component should render to the user of the component(App) */}
+      {/* With this we can easily resuse List component with company as well */}
+      {/* <List
+          title="Products"
+          items={products}
+          render={(product) => (
+            <ProductItem key={product.productName} product={product} />
+          )}
+        />
+
+        <List
+          title="Companies"
+          items={companies}
+          render={(company) => (
+            <CompanyItem
+              key={company.companyName}
+              company={company}
+              defaultVisibility={false}
+            />
+          )}
+        />
+      </div> */}
+
       <div className="col-2">
-        <List title="Products" items={products} />
+        <ProductList title="Products HOC" items={products} />
+        <ProductLictWithToggles title="Products HOC" items={products} />
       </div>
     </div>
-  );
-}
-
-// LATER: Let's say we got this component from a 3rd-party library, and can't change it. But we still want to add the 2 toggle functionalities to it
-function ProductList({ title, items }) {
-  return (
-    <ul className="list">
-      {items.map((product) => (
-        <ProductItem key={product.productName} product={product} />
-      ))}
-    </ul>
   );
 }
